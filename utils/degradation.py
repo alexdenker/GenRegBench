@@ -99,7 +99,7 @@ def get_forward_op(degradation_type: str, device: str, in_channels: int, image_s
     elif degradation_type == "deblurring":
         kernel_index = 1  # which kernel to chose among the 8 motion kernels from 'Levin09.mat'
         kernel_torch = load_degradation(
-            name ="Levin09.npy", index=kernel_index, download =True
+            name ="Levin09.npy", index=kernel_index, download =False,  data_dir = "dataset"
         ).to(torch.float32)
         kernel_torch = kernel_torch.unsqueeze(0).unsqueeze(
             0
