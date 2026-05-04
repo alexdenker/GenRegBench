@@ -44,5 +44,19 @@ echo "==> Downloading pretrained models (folder)..."
 gdown --folder "https://drive.google.com/drive/folders/1ZM_JWm7dV4f7rSObgWVFw63EOLEsZREl" \
       -O "$MODELS_DIR" --remaining-ok
 
+
+echo "==> Downloading flow models (pnpflow)..."
+
+for dataset in celebahq ellipses aapm walnut; do
+    mkdir -p "weights/${dataset}/pnpflow"
+done
+
+download_if_missing "1y4PGJRZS93Y_DMkQN_8dz5KQ-5NdacYo" "weights/celebahq/pnpflow/velocity_celebahq_final.pt"
+download_if_missing "1-vZUuDMbD1oTLPoB7f6c7Pld9Ii9a4KG"  "weights/ellipses/pnpflow/velocity_ellipses_final.pt"
+download_if_missing "1D7xCZ6VvftdCQthtK4lCOttYlQAbk_fV"  "weights/aapm/pnpflow/velocity_aapm_final.pt"
+download_if_missing "1HFjLnHKeK7gBD56rC-_RByrcrPePmOHv"  "weights/walnut/pnpflow/velocity_walnut_final.pt"
+
+
+
 echo "==> Done."
 
