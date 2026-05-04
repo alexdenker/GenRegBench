@@ -55,7 +55,7 @@ def get_dataset(name, part):
     torch.utils.data.Dataset
     """
     assert part in ["train", "val", "test"], f"Invalid part: '{part}'. Must be 'train', 'val', or 'test'."
-    assert name in ["ellipses", "walnut", "celebahq", "afhq"], f"Unknown dataset: '{name}'. Available: 'ellipses', 'walnut', 'celebahq', 'afhq'"
+    assert name in ["ellipses", "walnut", "celebahq", "afhq", "ffhq", "aapm"], f"Unknown dataset: '{name}'. Available: 'ellipses', 'walnut', 'celebahq', 'afhq', 'ffhq', 'aapm'."
 
     if os.path.exists(f"dataset/{name}_{part}.npy"):
         print(f"Loading {name} ({part}) from numpy file.")
@@ -136,7 +136,7 @@ def get_dataset(name, part):
     else:
         raise ValueError(
             f"Unknown dataset: '{name}'. "
-            "Available: 'ellipses', 'walnut', 'celebahq', 'afhq', 'ffhq'"
+            "Available: 'ellipses', 'walnut', 'celebahq', 'afhq', 'ffhq', 'aapm'"
         )
 
 
