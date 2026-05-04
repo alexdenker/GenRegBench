@@ -14,4 +14,5 @@ saved_models/
 old/
 
 dataset/*.npy
+!dataset/Levin09.npy
 dataset/*.h5
