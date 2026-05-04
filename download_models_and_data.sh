@@ -9,7 +9,7 @@ if ! command -v gdown &> /dev/null; then
 fi
 
 DATASET_DIR="dataset"
-MODELS_DIR="saved_models/diffusers"
+MODELS_DIR="saved_models"
 
 mkdir -p "$DATASET_DIR"
 mkdir -p "$MODELS_DIR"
