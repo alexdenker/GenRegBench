@@ -60,7 +60,7 @@ def create_model(image_size=256, in_channels=1, out_channels=1):
 
 
 def train():
-    dataset_name = "aapm" #"walnut"  # "ellipses" or "lodopab" or "walnut"
+    dataset_name = "aapm" #"walnut"  # "ellipses"  or "walnut"
 
     device = "cuda" if torch.cuda.is_available() else "cpu"
     
@@ -157,7 +157,6 @@ def train():
         num_training_steps=num_epochs * len(train_loader),
     )
     
-    # EMA
     ema = EMA(
         model,
         beta=ema_decay,
@@ -165,7 +164,6 @@ def train():
         update_every=10,
     )
     
-    # Tensorboard
     writer = SummaryWriter(log_dir=log_dir)
     
     # Training loop
@@ -209,7 +207,6 @@ def train():
             epoch_loss += loss.item() * gradient_accumulation_steps
             num_batches += 1
             
-            # Update weights
             if (batch_idx + 1) % gradient_accumulation_steps == 0:
                 torch.nn.utils.clip_grad_norm_(model.parameters(), 1.0)
                 optimizer.step()
