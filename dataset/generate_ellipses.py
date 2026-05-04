@@ -1,0 +1,240 @@
+"""
+Provides the EllipsesDataset.
+From https://github.com/educating-dip/subspace_dip_learning/blob/main/subspace_dip/data/datasets/ellipses.py
+
+Pure PyTorch implementation without external dependencies (ODL or OpenCV).
+"""
+
+from typing import Union, Iterator, Tuple
+import numpy as np
+import torch
+from torch import Tensor
+from itertools import repeat    
+
+class EllipsesDataset(torch.utils.data.IterableDataset):
+    """
+    Dataset with images of multiple random ellipses.
+    Creates images by rasterizing random ellipses. The images are normalized 
+    to have a value range of ``[0., 1.]`` with a background value of ``0.``.
+    """
+
+    def __init__(
+        self,
+        shape: Tuple[int, int] = (128, 128),
+        length: int = 3200,
+        fixed_seed: int = 1,
+        fold: str = "train",
+        max_n_ellipse: int = 70,
+    ):
+        self.shape = shape
+        self.length = length
+        self.max_n_ellipse = max_n_ellipse
+        self.ellipses_data = []
+        self.setup_fold(fixed_seed=fixed_seed, fold=fold)
+
+        # Create coordinate grids
+        h, w = self.shape
+        yy, xx = torch.meshgrid(torch.arange(h, dtype=torch.float32), 
+                                 torch.arange(w, dtype=torch.float32), indexing='ij')
+        self.yy = yy
+        self.xx = xx
+        super().__init__()
+
+    def setup_fold(self, fixed_seed: int = 1, fold: str = "train"):
+        fixed_seed = None if fixed_seed in [False, None] else int(fixed_seed)
+        if (fixed_seed is not None) and (fold == "validation"):
+            fixed_seed = fixed_seed + 1
+        self.rng = np.random.RandomState(fixed_seed)
+
+    def __len__(self) -> Union[int, float]:
+        return self.length if self.length is not None else float("inf")
+
+    def _extend_ellipses_data(self, min_length: int) -> None:
+        ellipsoids = np.empty((self.max_n_ellipse, 6))
+        n_to_generate = max(min_length - len(self.ellipses_data), 0)
+        for _ in range(n_to_generate):
+            v = self.rng.uniform(-0.4, 1.0, (self.max_n_ellipse,))
+            a1 = 0.2 * self.rng.exponential(1.0, (self.max_n_ellipse,))
+            a2 = 0.2 * self.rng.exponential(1.0, (self.max_n_ellipse,))
+            x = self.rng.uniform(-0.9, 0.9, (self.max_n_ellipse,))
+            y = self.rng.uniform(-0.9, 0.9, (self.max_n_ellipse,))
+            rot = self.rng.uniform(0.0, 2 * np.pi, (self.max_n_ellipse,))
+            n_ellipse = min(self.rng.poisson(self.max_n_ellipse), self.max_n_ellipse)
+            v[n_ellipse:] = 0.0
+            ellipsoids = np.stack((v, a1, a2, x, y, rot), axis=1)
+            self.ellipses_data.append(ellipsoids)
+
+    def _generate_item(self, idx: int) -> Tensor:
+        """Rasterize ellipses onto an image using pure PyTorch."""
+        ellipsoids = self.ellipses_data[idx]
+        h, w = self.shape
+        
+        image = torch.zeros((h, w), dtype=torch.float32)
+        
+        # Center coordinates
+        center_h, center_w = h / 2.0, w / 2.0
+        
+        for ellipse_params in ellipsoids:
+            v, a1, a2, x, y, rot = ellipse_params
+            
+            # Skip if intensity is zero or very small
+            if v <= 0.0:
+                continue
+            
+            # Convert normalized coords to pixel coords
+            center_x = center_w + float(x) * center_w
+            center_y = center_h + float(y) * center_h
+            
+            # Semi-axes in pixels
+            axis_a = max(1.0, float(a1) * center_h)
+            axis_b = max(1.0, float(a2) * center_h)
+            
+            # Rotation angle
+            angle = float(rot)
+            
+            # Translate coordinates relative to ellipse center
+            dx = self.xx - center_x
+            dy = self.yy - center_y
+
+            # Rotate coordinates
+            cos_a = np.cos(angle)
+            sin_a = np.sin(angle)
+            dx_rot = dx * cos_a + dy * sin_a
+            dy_rot = -dx * sin_a + dy * cos_a
+            
+            # Ellipse equation: (x/a)^2 + (y/b)^2 <= 1
+            ellipse_mask = (dx_rot ** 2 / (axis_a ** 2) + 
+                           dy_rot ** 2 / (axis_b ** 2)) <= 1.0
+            
+            # Add ellipse contribution (soft blending for overlaps)
+            image = torch.where(ellipse_mask, 
+                               image + float(v), 
+                               image)
+        
+        # Normalize to [0, 1]
+        max_val = torch.max(image)
+        if max_val > 0:
+            image = image / max_val
+        
+        return image[None].float()  # add channel dim
+
+    def __iter__(self) -> Iterator[Tensor]:
+        it = repeat(None, self.length) if self.length is not None else repeat(None)
+        for idx, _ in enumerate(it):
+            self._extend_ellipses_data(idx + 1)
+            yield self._generate_item(idx)
+
+    def __getitem__(self, idx: int) -> Tensor:
+        self._extend_ellipses_data(idx + 1)
+        return self._generate_item(idx)
+
+
+def get_ellipses_dataset(
+    fold: str = "train",
+    im_size: int = 128,
+    length: int = 3200,
+    max_n_ellipse: int = 70,
+    device=None,
+) -> EllipsesDataset:
+    image_dataset = EllipsesDataset(
+        (im_size, im_size), length=length, fold=fold, max_n_ellipse=max_n_ellipse
+    )
+
+    return image_dataset
+
+
+class DiskDistributedEllipsesDataset(EllipsesDataset):
+    def __init__(
+        self,
+        shape: Tuple[int, int] = (128, 128),
+        length: int = 3200,
+        fixed_seed: int = 1,
+        fold: str = "train",
+        diameter: float = 0.4745,
+        max_n_ellipse: int = 70,
+    ):
+        super().__init__(
+            shape=shape,
+            length=length,
+            fixed_seed=fixed_seed,
+            fold=fold,
+            max_n_ellipse=max_n_ellipse,
+        )
+        self.diameter = diameter
+
+    def _extend_ellipses_data(self, min_length: int) -> None:
+        ellipsoids = np.empty((self.max_n_ellipse, 6))
+        n_to_generate = max(min_length - len(self.ellipses_data), 0)
+        for _ in range(n_to_generate):
+            v = self.rng.uniform(-0.4, 1.0, (self.max_n_ellipse,))
+            a1 = 0.2 * self.diameter * self.rng.exponential(1.0, (self.max_n_ellipse,))
+            a2 = 0.2 * self.diameter * self.rng.exponential(1.0, (self.max_n_ellipse,))
+
+            c_r = self.rng.triangular(
+                0.0, self.diameter, self.diameter, size=(self.max_n_ellipse,)
+            )
+            c_a = self.rng.uniform(0.0, 2 * np.pi, (self.max_n_ellipse,))
+            x = np.cos(c_a) * c_r
+            y = np.sin(c_a) * c_r
+            rot = self.rng.uniform(0.0, 2 * np.pi, (self.max_n_ellipse,))
+            n_ellipse = min(self.rng.poisson(self.max_n_ellipse), self.max_n_ellipse)
+            v[n_ellipse:] = 0.0
+            ellipsoids = np.stack((v, a1, a2, x, y, rot), axis=1)
+            self.ellipses_data.append(ellipsoids)
+
+
+def get_disk_dist_ellipses_dataset(
+    fold: str = "train",
+    im_size: int = 128,
+    length: int = 3200,
+    diameter: float = 0.4745,
+    max_n_ellipse: int = 70,
+    device=None,
+) -> DiskDistributedEllipsesDataset:
+    image_dataset = DiskDistributedEllipsesDataset(
+        (im_size, im_size),
+        **{"length": length, "fold": fold},
+        diameter=diameter,
+        max_n_ellipse=max_n_ellipse,
+    )
+
+    return image_dataset
+
+
+if __name__ == "__main__":
+    import matplotlib.pyplot as plt
+
+    dataset = DiskDistributedEllipsesDataset(
+        shape=(256, 256),
+        length=10,
+        diameter=0.4745,
+        max_n_ellipse=100,
+    )
+
+    fig, ax = plt.subplots(2, 3, figsize=(15, 6))
+
+    for i in range(6):
+        img = dataset[i]
+        ax[i // 3, i % 3].imshow(img[0, :, :].cpu().numpy(), cmap="gray")
+        ax[i // 3, i % 3].axis("off")
+    plt.show()
+
+
+    dataset = get_disk_dist_ellipses_dataset(im_size=256, max_n_ellipse=100)
+
+
+    print(dataset)
+    print("Length: ", len(dataset))
+
+    fig, axes = plt.subplots(2,3, figsize=(6,4))
+
+    for idx, ax in enumerate(axes.ravel()):
+
+        x = dataset[idx]
+        
+        ax.imshow(x[0].cpu().numpy(), cmap="gray")
+        ax.axis("off")
+    plt.tight_layout()
+    plt.savefig("ellipses_dataset.pdf", bbox_inches="tight")
+    plt.show()
+

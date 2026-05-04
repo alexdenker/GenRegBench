@@ -1,0 +1,17 @@
+
+
+*.pyc
+
+results/
+results_old/
+
+dataset/celeba_hq_256/
+dataset/walnuts/ 
+dataset/celeba/ 
+dataset/cat/
+wandb/
+saved_models/
+old/
+
+dataset/*.npy
+dataset/*.h5
