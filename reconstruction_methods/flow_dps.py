@@ -281,14 +281,14 @@ class SD3FlowDPS(SD3Euler):
 
             residual = operator.A(x0_pred_scaled) - measurement
             loss = torch.sum(residual.view(1, -1) ** 2)
-            print(loss)
+            #print(loss)
             if loss.item() <= noise_level:
-                print("loss: ", loss.item(), " <= noise level: ", noise_level, " - stopping DC optimization (iter {}).".format(iter))
+                #print("loss: ", loss.item(), " <= noise level: ", noise_level, " - stopping DC optimization (iter {}).".format(iter))
                 break
             loss.backward()
             optimizer.step()
 
-        print("Final DC step loss: ", loss.item(), " for noise level {} after {} iterations.".format(noise_level, iter+1))
+        #print("Final DC step loss: ", loss.item(), " for noise level {} after {} iterations.".format(noise_level, iter+1))
         return z0t.detach()
 
 
