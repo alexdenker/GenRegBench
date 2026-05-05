@@ -1,7 +1,5 @@
 #!/bin/bash
 
-cuda_device=0
-
 #######################################
 ### FlowDPS with Stable Diffusion #####
 ########################################
@@ -12,7 +10,7 @@ step_size=10.0
 num_dc_steps=50
 part="test"
 echo "Running main_flow.py for model $model_path, task $task, num_angles $num_angles, step_size $step_size, num_dc_steps $num_dc_steps"
-CUDA_VISIBLE_DEVICES=$cuda_device python main_flow.py --method flowdps --task "$task" --part "$part" --num_angles $num_angles --sigma_n 0.01 --step_size $step_size --num_dc_steps $num_dc_steps --efficient_memory
+python main_flow.py --method flowdps --task "$task" --part "$part" --num_angles $num_angles --sigma_n 0.01 --step_size $step_size --num_dc_steps $num_dc_steps --efficient_memory
 
 
 task="tomography_sparseview"
@@ -21,4 +19,4 @@ step_size=10.0
 num_dc_steps=50
 part="test"
 echo "Running main_flow.py for model $model_path, task $task, num_angles $num_angles, step_size $step_size, num_dc_steps $num_dc_steps"
-CUDA_VISIBLE_DEVICES=$cuda_device python main_flow.py --method flowdps --task "$task" --part "$part" --num_angles $num_angles --sigma_n 0.01 --step_size $step_size --num_dc_steps $num_dc_steps --efficient_memory
+python main_flow.py --method flowdps --task "$task" --part "$part" --num_angles $num_angles --sigma_n 0.01 --step_size $step_size --num_dc_steps $num_dc_steps --efficient_memory
