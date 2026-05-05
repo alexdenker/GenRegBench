@@ -7,6 +7,9 @@ task="tomography_sparseview"
 model_path="saved_models/diffusers/walnut/ema_model"
 
 # for the varying angles figure
+num_angles=8
+grad_coeff=1.0
+python main.py --model_path $model_path --method dps --task "$task" --part test --num_angles $num_angles --sigma_n 0.01 --grad_coeff $grad_coeff --batch_size 1 --num_steps 1000
 
 # for the varying angles figure and table
 num_angles=16
