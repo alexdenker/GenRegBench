@@ -15,8 +15,10 @@ bash download_models_and_data.sh
 ### Model Retraining
 
 We provide the pretrained models (as described above) with which we generated the results. Alternatively, we also provide our training code for the diffusion and flow matching models. To this end, first the training datasets have to be downloaded as follows:
-
-TODO
+- [Walnut](https://zenodo.org/records/2686726): The dataset is hosted on zenodo. The files have to be downloaded to **dataset/walnut**.
+- [AAPM](https://aapm.app.box.com/s/eaw4jddb53keg1bptavvvd1sf4x3pe9h): The AAPM dataset is publicly available. We use the B30 reconstruction kernel with full-dose 1 mm slice thickness. The files have to be downloaded to **dataset/aapm**. Preprocessing is done using **dataset/preprocess_aapm.py**.
+- [CelebAHQ](https://www.kaggle.com/datasets/badasstechie/celebahq-resized-256x256): The CelebA-HQ dataset is availble on kaggle. 
+- Ellipses: The ellipses are generated on the fly using **dataset/generate_ellipses.py**.
 
 After downloading the datasets, run for the diffusion models
 ```
