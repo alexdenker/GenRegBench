@@ -1,3 +1,10 @@
+"""
+Adapted from DM4CT codebase:
+
+https://github.com/DM4CT/DM4CT/blob/main/preprocess_lodochallenge.py
+
+"""
+
 import os
 import numpy as np
 from tqdm import tqdm
