@@ -79,7 +79,7 @@ lam=0.005
 python main_learned_reg.py --trained_model $trained_model --model_type=LSR --dataset_name $dataset_name --part $part --task $task --sigma_n $sigma_n --lmbd $lam --num_angles 128 --misaligned_angles
 
 # misaligned noise
-
+sigma_n=0.02
 lam=0.005
 python main_learned_reg.py --trained_model $trained_model --model_type=LSR --dataset_name $dataset_name --part $part --task $task --sigma_n $sigma_n --lmbd $lam --num_angles 32 --misaligned_noise
 
