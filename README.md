@@ -48,4 +48,4 @@ bash script_test/run_test_ct_diffpir.sh
 For the other methods replace `diffpir` by `dmplug`, `dps`, `flowdps`, `lsr`, `pnpflow`, `pnplsr`, `reddiff`, `tv` or `wcrr`.
 For the results for natural images replace `ct` by `natural` in the above command.
 
-The results will be saved in the directory `results` by the subdirectory `{TRAINING_DATASET}_to_{TESTDATASET}/task_{TASK}/sigma_n={NOISE_LEVEL}/{METHOD}/test` and contain a text file summarizing the metrics and a subdirectory containing the images and a json file with the per-image metrics.
+The results will be saved in the directory `results` by the subdirectory `{TRAINING_DATASET}_to_{TESTDATASET}/task_{TASK}/sigma_n={NOISE_LEVEL}/{METHOD}/test` which contains a text file summarizing the metrics and a subdirectory containing the images and a json file with the per-image metrics.
