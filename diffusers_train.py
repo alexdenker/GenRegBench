@@ -18,6 +18,9 @@ from ema_pytorch import EMA
 from tqdm import tqdm
 import yaml
 
+import argparse
+
+
 from dataset import get_dataset
 
 def dict2namespace(config):
@@ -60,7 +63,12 @@ def create_model(image_size=256, in_channels=1, out_channels=1):
 
 
 def train():
-    dataset_name = "aapm" #"walnut"  # "ellipses"  or "walnut"
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--dataset_name", type=str, default="aapm", choices=["aapm", "ellipses", "walnut"], 
+                        help="Name of the dataset to train on")
+    args = parser.parse_args()
+
+    dataset_name = args.dataset_name
 
     device = "cuda" if torch.cuda.is_available() else "cpu"
     
