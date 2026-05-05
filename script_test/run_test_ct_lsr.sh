@@ -11,7 +11,7 @@ trained_model=walnut
 lam=0.001
 python main_learned_reg.py --trained_model $trained_model --model_type=LSR --dataset_name $dataset_name --part $part --task $task --sigma_n $sigma_n --lmbd $lam --num_angles 8 
 
-# for teh varying angles figure and table
+# for the varying angles figure and table
 lam=0.002
 python main_learned_reg.py --trained_model $trained_model --model_type=LSR --dataset_name $dataset_name --part $part --task $task --sigma_n $sigma_n --lmbd $lam --num_angles 16 
 
