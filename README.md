@@ -4,20 +4,48 @@
 
 We want to compare different generative and non-generative algorithms for image reconstruction and image restoration. 
 
-| Method                          | Note | Reference | 
-|--------------------------------------|------|------|
-| DiffPIR | Diffusion models for plug-and-play image restoration    | [Zhu et al. (2023)](https://arxiv.org/abs/2008.13751) |
-|  RED-Diff  | A Variational Perspective on Solving Inverse Problems with Diffusion Models   | [Mardani et al. (2023)](https://arxiv.org/abs/2305.04391) |
-|  DPS  | Diffusion Posterior Sampling for General Noisy Inverse Problems | [Chung et al. (2022)](https://arxiv.org/abs/2209.14687) |
-|  DMPlug  | DMPlug: A Plug-in Method for Solving Inverse Problems with Diffusion Models | [Wang et al. (2024)](https://arxiv.org/abs/2405.16749) |
-| FlowDPS | FlowDPS: Flow-Driven Posterior Sampling for Inverse Problems | [Kim et al. (2025)](https://arxiv.org/abs/2503.08136) | 
+## Preparation
 
+Download the pretrained models and the validation and test datasets by
 
-### Datasets
+```
+bash download_models_and_data.sh
+```
 
-| Dataset                          | Note | Reference | 
-|--------------------------------------|------|------|
-|  Walnut             |       |   [Der Sarkissian et al. (2019)](https://arxiv.org/abs/1905.04787) |
-| ... | ... | ... |
+### Model Retraining
 
+We provide the pretrained models (as described above) with which we generated the results. Alternatively, we also provide our training code for the diffusion and flow matching models. To this end, first the training datasets have to be downloaded as follows:
 
+TODO
+
+After downloading the datasets, run for the diffusion models
+```
+python diffusers_train.py --dataset_name walnut
+```
+(where `walnut` can also be replaced by `aapm` or `ellipses`).
+For the flow matching models run
+```
+PYTHONPATH="$PYTHONPATH:./" python flow_matching_training/train_fm.py --dataset celebahq
+```
+(where `celebahq` can be replaced by `aapm`, `walnut` and `ellipses`).
+
+## Reproduction of the results
+
+The results from the paper can be reproduced by the python scripts 
+- `main.py` (diffusion-based methods for CT `DiffPIR`, `DPS`, `DMPlug` and `REDdiff`), 
+- `main_natural_images.py` (diffusion-based methods for natural images `DiffPIR`, `DPS`, `DMPlug` and `REDdiff`), 
+- `main_learned_reg.py` (learned regularizers `WCRR`, `LSR` and `PnP-LSR`), 
+- `main_RAM.py` (`RAM` for natural images)
+- `main_tv.py` (total variation `TV`)
+- `main_pnpflow.py` (`PnP-flow`)
+- `main_flow.py` (text-to-image diffusion `FlowDPS`)
+
+For calling these methods with the exact hyperparamters used for the paper, we provide shell scripts in the subdirectory `script_test`.
+To reproduce all CT results for `DiffPIR` run
+```
+bash script_test/run_test_ct_diffpir.sh
+```
+For the other methods replace `diffpir` by `dmplug`, `dps`, `flowdps`, `lsr`, `pnpflow`, `pnplsr`, `reddiff`, `tv` or `wcrr`.
+For the results for natural images replace `ct` by `natural` in the above command.
+
+The results will be saved in the directory `results` by the subdirectory `{TRAINING_DATASET}_to_{TESTDATASET}/task_{TASK}/sigma_n={NOISE_LEVEL}/{METHOD}/test` and contain a text file summarizing the metrics and a subdirectory containing the images and a json file with the per-image metrics.
