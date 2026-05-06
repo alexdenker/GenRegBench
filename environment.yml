@@ -1,5 +1,6 @@
 name: genreg
 channels:
+  - conda-forge
   - defaults
   - astra-toolbox
   - nvidia
@@ -7,6 +8,7 @@ dependencies:
   - python=3.11
   - scikit-image
   - astra-toolbox=2.4.1
+  - libstdcxx-ng>=13
   - pip:
     - deepinv==0.4.0
     - diffusers==0.38.0
@@ -15,3 +17,4 @@ dependencies:
     - torch==2.11.0
     - torchvision==0.26.0
     - transformers==5.8.0
+    - gdown
