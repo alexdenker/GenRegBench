@@ -12,6 +12,16 @@ Download the pretrained models and the validation and test datasets by
 bash download_models_and_data.sh
 ```
 
+
+#### Environment setup
+
+Install Conda (Miniconda or Anaconda).
+
+Create the environment from the file:
+```
+conda env create -f environment.yml
+```
+
 ### Model Retraining
 
 We provide the pretrained models (as described above) with which we generated the results. Alternatively, we also provide our training code for the diffusion and flow matching models. To this end, first the training datasets have to be downloaded as follows:
