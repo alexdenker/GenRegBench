@@ -161,4 +161,3 @@ dependencies:
       - typer==0.25.1
       - urllib3==2.6.3
       - zipp==3.23.1
-prefix: /home/alexdenker/miniconda3/envs/genreg
