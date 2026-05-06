@@ -42,8 +42,7 @@ download_if_missing "1GA4aNE7pjJVTywXYKHV7EoD3Xxfi0gnp" "$DATASET_DIR/walnut_val
 
 echo "==> Downloading pretrained models (folder)..."
 gdown --folder "https://drive.google.com/drive/folders/1ZM_JWm7dV4f7rSObgWVFw63EOLEsZREl" \
-      -O "$MODELS_DIR" --remaining-ok
-
+      -O "$MODELS_DIR" 
 
 echo "==> Downloading flow models (pnpflow)..."
 

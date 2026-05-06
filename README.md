@@ -22,6 +22,11 @@ Create the environment from the file:
 conda env create -f environment.yml
 ```
 
+We noticed that some Linux systems have an outdated libstdc++ that breaks Diffusers binaries (error version `CXXABI_1.3.15' not found). In this case, setting LD_LIBRARY_PATH fixes it:
+```
+export LD_LIBRARY_PATH=$CONDA_PREFIX/lib:$LD_LIBRARY_PATH
+```
+
 ### Model Retraining
 
 We provide the pretrained models (as described above) with which we generated the results. Alternatively, we also provide our training code for the diffusion and flow matching models. To this end, first the training datasets have to be downloaded as follows:
